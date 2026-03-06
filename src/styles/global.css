@@ -1,0 +1,474 @@
+/* ---- Reset & Base ---- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg: #0f0f1a;
+  --bg-card: #1a1a2e;
+  --bg-input: #16213e;
+  --bg-hover: #1f2b47;
+  --border: #2a2a4a;
+  --text: #e0e0e0;
+  --text-secondary: #8888aa;
+  --text-muted: #555577;
+  --accent: #6c63ff;
+  --accent-hover: #7b73ff;
+  --danger: #ff4757;
+  --success: #2ed573;
+  --warning: #ffa502;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+html, body, #root {
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+/* Prevent iOS bounce / pull-to-refresh */
+body {
+  overscroll-behavior: none;
+}
+
+/* ---- Typography ---- */
+.date-header {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  padding: 16px 0 8px;
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 2;
+  letter-spacing: 0.5px;
+}
+
+/* ---- Scrollable area ---- */
+.scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 0 16px;
+  padding-bottom: calc(80px + var(--safe-bottom));
+}
+
+/* ---- Input area ---- */
+.input-row {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  padding-bottom: calc(12px + var(--safe-bottom));
+  background: var(--bg-card);
+  border-top: 1px solid var(--border);
+}
+
+.input-row textarea,
+.input-row input[type="text"] {
+  flex: 1;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 16px;
+  padding: 10px 14px;
+  outline: none;
+  resize: none;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+.input-row textarea:focus,
+.input-row input[type="text"]:focus {
+  border-color: var(--accent);
+}
+
+.input-row textarea {
+  min-height: 42px;
+  max-height: 120px;
+}
+
+/* ---- Buttons ---- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+.btn-primary:active {
+  background: var(--accent-hover);
+  transform: scale(0.97);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+}
+.btn-ghost:active {
+  background: var(--bg-hover);
+}
+
+.btn-danger {
+  background: transparent;
+  color: var(--danger);
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+/* ---- Cards ---- */
+.entry-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  position: relative;
+}
+
+.entry-card .entry-time {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.entry-card .entry-content {
+  font-size: 15px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.entry-card .entry-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.entry-card .delete-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px;
+}
+.entry-card:hover .delete-btn,
+.entry-card:active .delete-btn {
+  opacity: 1;
+}
+
+/* ---- Category Tag ---- */
+.cat-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  background: var(--bg-hover);
+  color: var(--accent);
+}
+
+/* ---- Tab Bar ---- */
+.tab-bar {
+  display: flex;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  padding-top: var(--safe-top);
+}
+
+.tab-bar button {
+  flex: 1;
+  padding: 14px 0;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.2s;
+  font-family: inherit;
+}
+
+.tab-bar button.active {
+  color: var(--accent);
+}
+
+.tab-bar button.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 20%;
+  width: 60%;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 1px;
+}
+
+/* ---- Timer Display ---- */
+.timer-display {
+  background: var(--bg-card);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin: 12px 0;
+  text-align: center;
+}
+
+.timer-display .timer-time {
+  font-size: 36px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+  letter-spacing: 2px;
+}
+
+.timer-display .timer-label {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.timer-display .timer-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+/* ---- Stats bar ---- */
+.stats-bar {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 8px 0;
+}
+
+.stat-chip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: var(--bg-card);
+  border-radius: 20px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.stat-chip .stat-value {
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* ---- Day picker overlay ---- */
+.day-picker-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 100;
+  display: flex;
+  align-items: flex-end;
+}
+
+.day-picker-sheet {
+  width: 100%;
+  max-height: 60vh;
+  background: var(--bg-card);
+  border-radius: var(--radius) var(--radius) 0 0;
+  padding: 16px;
+  padding-bottom: calc(16px + var(--safe-bottom));
+  overflow-y: auto;
+}
+
+.day-picker-sheet h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: var(--text);
+}
+
+.day-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 8px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.day-list-item:active {
+  background: var(--bg-hover);
+}
+
+.day-list-item .day-label {
+  font-size: 15px;
+}
+
+.day-list-item .day-count {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* ---- Form inputs ---- */
+.form-group {
+  margin-bottom: 12px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 16px;
+  outline: none;
+  font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: var(--accent);
+}
+
+.form-group select {
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.category-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.category-pill {
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+
+.category-pill.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+/* ---- Manual add modal ---- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.modal-content {
+  width: 100%;
+  max-width: 400px;
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 24px;
+}
+
+.modal-content h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+/* ---- Layout ---- */
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.tab-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ---- Toolbar ---- */
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+}
+
+/* ---- Empty state ---- */
+.empty-state {
+  text-align: center;
+  padding: 60px 24px;
+  color: var(--text-muted);
+}
+
+.empty-state .empty-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.empty-state p {
+  font-size: 14px;
+  line-height: 1.6;
+}
