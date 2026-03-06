@@ -1,5 +1,5 @@
 import type { TimeEntry } from '@/types'
-import { formatDuration } from '@/utils/date'
+import { formatDurationCN } from '@/utils/parseTimeEntry'
 
 interface Props {
   entries: TimeEntry[]
@@ -18,11 +18,11 @@ export function DayStats({ entries }: Props) {
   return (
     <div className="stats-bar">
       <div className="stat-chip">
-        合计 <span className="stat-value">{formatDuration(total)}</span>
+        合计 <span className="stat-value">{formatDurationCN(total)}</span>
       </div>
       {Array.from(byCategory.entries()).map(([cat, mins]) => (
         <div key={cat} className="stat-chip">
-          {cat} <span className="stat-value">{formatDuration(mins)}</span>
+          {cat} <span className="stat-value">{formatDurationCN(mins)}</span>
         </div>
       ))}
     </div>
