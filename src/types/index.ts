@@ -12,17 +12,7 @@ export interface TimeEntry {
   category: string
   /** 时长（分钟） */
   duration: number
-  /** 开始时间 unix ms，计时器模式用 */
-  startedAt?: number
   createdAt: number // unix ms
-}
-
-/** 计时器状态 */
-export interface TimerState {
-  isRunning: boolean
-  event: string
-  category: string
-  startedAt: number | null
 }
 
 /** Tab 类型 */

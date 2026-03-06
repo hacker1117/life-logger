@@ -109,7 +109,7 @@ async function setKV<T>(storeName: string, key: string, value: T): Promise<void>
 
 // ---- 对外接口 ----
 
-import type { KnowledgeEntry, TimeEntry, TimerState } from '@/types'
+import type { KnowledgeEntry, TimeEntry } from '@/types'
 
 export const knowledgeDB = {
   getAll: () => getAllByDate<KnowledgeEntry>(STORE_KNOWLEDGE),
@@ -121,12 +121,6 @@ export const timetrackDB = {
   getAll: () => getAllByDate<TimeEntry>(STORE_TIMETRACK),
   add: (item: TimeEntry) => add(STORE_TIMETRACK, item),
   remove: (id: string) => remove(STORE_TIMETRACK, id),
-  update: (item: TimeEntry) => put(STORE_TIMETRACK, item),
-}
-
-export const timerDB = {
-  get: () => getKV<TimerState>(STORE_TIMER, 'current'),
-  set: (state: TimerState) => setKV(STORE_TIMER, 'current', state),
 }
 
 export const settingsDB = {
