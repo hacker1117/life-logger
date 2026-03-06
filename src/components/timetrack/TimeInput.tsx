@@ -1,29 +1,28 @@
 /**
- * 时间记录输入组件 - 自然语言解析模式
- * 用户直接输入描述，实时解析出事件和时长
+ * 时间记录输入 - 自然语言解析，分类可选
  */
 import { useState, useRef, useCallback } from 'react'
 import { parseTimeEntry, formatDurationCN } from '@/utils/parseTimeEntry'
 
 interface Props {
   categories: string[]
-  onSubmit: (event: string, category: string, duration: number) => void
+  onSubmit: (event: string, duration: number, category?: string) => void
 }
 
 export function TimeInput({ categories, onSubmit }: Props) {
-  const [input, setInput] = useState('')
-  const [category, setCategory] = useState(categories[0] || '工作')
+  const [input, setInput]       = useState('')
+  const [category, setCategory] = useState<string | undefined>(undefined)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   const parsed = input.trim() ? parseTimeEntry(input) : null
+  const canSubmit = !!parsed
 
   const handleSubmit = useCallback(() => {
     if (!parsed) return
-    onSubmit(parsed.event, category, parsed.duration)
+    onSubmit(parsed.event, parsed.duration, category)
     setInput('')
-    if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto'
-    }
+    setCategory(undefined)
+    if (textareaRef.current) textareaRef.current.style.height = 'auto'
   }, [parsed, category, onSubmit])
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -40,18 +39,22 @@ export function TimeInput({ categories, onSubmit }: Props) {
     el.style.height = Math.min(el.scrollHeight, 160) + 'px'
   }
 
-  const hasInput = input.trim().length > 0
-  const canSubmit = !!parsed
-
   return (
     <div className="input-area">
-      {/* 分类选择 */}
+      {/* 可选分类 */}
       <div className="category-pills" style={{ marginBottom: 8 }}>
+        <span className="input-hint" style={{ alignSelf: 'center', marginRight: 4 }}>分类：</span>
+        <button
+          className={`category-pill ${!category ? 'active' : ''}`}
+          onClick={() => setCategory(undefined)}
+        >
+          无
+        </button>
         {categories.map(c => (
           <button
             key={c}
             className={`category-pill ${category === c ? 'active' : ''}`}
-            onClick={() => setCategory(c)}
+            onClick={() => setCategory(category === c ? undefined : c)}
           >
             {c}
           </button>
@@ -64,12 +67,12 @@ export function TimeInput({ categories, onSubmit }: Props) {
         value={input}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
-        placeholder={'直接描述你做了什么，例如：\n"和朋友吃饭 1.5小时"\n"阅读《奇特的一生》二十五分钟"'}
+        placeholder={'直接描述，例如：\n"和朋友吃饭 1.5小时"\n"阅读《奇特的一生》二十五分钟"'}
         rows={2}
       />
 
-      {/* 解析预览 */}
-      {hasInput && (
+      {/* 实时解析预览 */}
+      {input.trim() && (
         canSubmit ? (
           <div className="parse-preview">
             <span className="preview-event">✓ {parsed!.event}</span>
@@ -80,7 +83,6 @@ export function TimeInput({ categories, onSubmit }: Props) {
         )
       )}
 
-      {/* 操作栏 */}
       <div className="input-row-actions" style={{ marginTop: 8 }}>
         <span className="input-hint">Enter 保存 · Shift+Enter 换行</span>
         <button
