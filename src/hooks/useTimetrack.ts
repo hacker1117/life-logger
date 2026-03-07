@@ -1,12 +1,16 @@
 /**
- * 时间记录数据 Hook（NLP 输入模式，无计时器）
+ * 时间记录数据 Hook
+ * - 分类可选，不强制默认
+ * - 支持单条更新分类
+ * - 删除分类不影响已有记录
  */
 import { useState, useEffect, useCallback } from 'react'
 import type { TimeEntry, DayGroup } from '@/types'
 import { timetrackDB, settingsDB } from '@/store/db'
+import { syncDelete } from '@/store/sync'
 import { getDateKey, formatDateLabel, uid } from '@/utils/date'
 
-const DEFAULT_CATEGORIES = ['工作', '学习', '阅读', '社交', '运动', '休息']
+export const DEFAULT_CATEGORIES = ['工作', '学习', '阅读', '社交', '运动', '休息']
 
 function groupByDate(entries: TimeEntry[]): DayGroup<TimeEntry>[] {
   const map = new Map<string, TimeEntry[]>()
@@ -25,12 +29,17 @@ function groupByDate(entries: TimeEntry[]): DayGroup<TimeEntry>[] {
 }
 
 export function useTimetrack() {
-  const [entries, setEntries] = useState<TimeEntry[]>([])
+  const [entries, setEntries]     = useState<TimeEntry[]>([])
   const [categories, setCategories] = useState<string[]>(DEFAULT_CATEGORIES)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading]     = useState(true)
+
+  const reload = useCallback(async () => {
+    const data = await timetrackDB.getAll()
+    setEntries(data)
+  }, [])
 
   useEffect(() => {
-    (async () => {
+    ;(async () => {
       const [data, savedCats] = await Promise.all([
         timetrackDB.getAll(),
         settingsDB.getCategories(),
@@ -41,23 +50,46 @@ export function useTimetrack() {
     })()
   }, [])
 
-  const addEntry = useCallback(async (event: string, category: string, duration: number) => {
+  /** 新增记录，category 可不传 */
+  const addEntry = useCallback(async (
+    event: string,
+    duration: number,
+    category?: string,
+  ) => {
+    const now = Date.now()
     const entry: TimeEntry = {
       id: uid(),
       event: event.trim(),
-      category,
       duration,
-      createdAt: Date.now(),
+      category,
+      createdAt: now,
+      updatedAt: now,
     }
     await timetrackDB.add(entry)
     setEntries(prev => [entry, ...prev])
   }, [])
 
+  /** 更新单条记录的分类（设为 undefined 即清除） */
+  const updateCategory = useCallback(async (id: string, category: string | undefined) => {
+    setEntries(prev => {
+      const updated = prev.map(e => {
+        if (e.id !== id) return e
+        const next: TimeEntry = { ...e, category, updatedAt: Date.now() }
+        timetrackDB.put(next)   // fire-and-forget
+        return next
+      })
+      return updated
+    })
+  }, [])
+
+  /** 删除记录 */
   const removeEntry = useCallback(async (id: string) => {
     await timetrackDB.remove(id)
     setEntries(prev => prev.filter(e => e.id !== id))
+    syncDelete('time_entries', id)  // fire-and-forget
   }, [])
 
+  /** 添加自定义分类（不影响已有记录） */
   const addCategory = useCallback(async (name: string) => {
     const trimmed = name.trim()
     if (!trimmed || categories.includes(trimmed)) return
@@ -66,7 +98,21 @@ export function useTimetrack() {
     await settingsDB.setCategories(updated)
   }, [categories])
 
+  /**
+   * 删除分类定义（不修改已有条目上的 category 字段）
+   */
+  const removeCategory = useCallback(async (name: string) => {
+    const updated = categories.filter(c => c !== name)
+    setCategories(updated)
+    await settingsDB.setCategories(updated)
+    // 注意：已有记录上的 category 字段保持不变
+  }, [categories])
+
   const groups = groupByDate(entries)
 
-  return { entries, groups, categories, loading, addEntry, removeEntry, addCategory }
+  return {
+    entries, groups, categories, loading,
+    addEntry, updateCategory, removeEntry,
+    addCategory, removeCategory, reload,
+  }
 }

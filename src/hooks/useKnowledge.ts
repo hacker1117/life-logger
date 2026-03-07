@@ -4,6 +4,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import type { KnowledgeEntry, DayGroup } from '@/types'
 import { knowledgeDB } from '@/store/db'
+import { syncDelete } from '@/store/sync'
 import { getDateKey, formatDateLabel, uid } from '@/utils/date'
 
 function groupByDate(entries: KnowledgeEntry[]): DayGroup<KnowledgeEntry>[] {
@@ -18,7 +19,7 @@ function groupByDate(entries: KnowledgeEntry[]): DayGroup<KnowledgeEntry>[] {
     .map(([dateKey, entries]) => ({
       dateKey,
       label: formatDateLabel(dateKey),
-      entries, // already sorted desc from DB
+      entries,
     }))
 }
 
@@ -35,10 +36,12 @@ export function useKnowledge() {
   useEffect(() => { reload() }, [reload])
 
   const addEntry = useCallback(async (content: string) => {
+    const now = Date.now()
     const entry: KnowledgeEntry = {
       id: uid(),
       content: content.trim(),
-      createdAt: Date.now(),
+      createdAt: now,
+      updatedAt: now,
     }
     await knowledgeDB.add(entry)
     setEntries(prev => [entry, ...prev])
@@ -47,9 +50,10 @@ export function useKnowledge() {
   const removeEntry = useCallback(async (id: string) => {
     await knowledgeDB.remove(id)
     setEntries(prev => prev.filter(e => e.id !== id))
+    syncDelete('knowledge_entries', id)  // fire-and-forget
   }, [])
 
   const groups = groupByDate(entries)
 
-  return { entries, groups, loading, addEntry, removeEntry }
+  return { entries, groups, loading, addEntry, removeEntry, reload }
 }
