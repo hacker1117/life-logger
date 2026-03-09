@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useKnowledge } from '@/hooks/useKnowledge'
+import { useScrollToBottom } from '@/hooks/useScrollToBottom'
 import { DayPicker } from '@/components/common/DayPicker'
 import { KnowledgeInput } from './KnowledgeInput'
 import { formatTime, getTodayKey } from '@/utils/date'
@@ -13,6 +14,9 @@ export function KnowledgeTab() {
   const displayGroups = filterDate
     ? groups.filter(g => g.dateKey === filterDate)
     : groups
+
+  // 数据加载完 / 新条目添加后，滚到底部
+  const scrollRef = useScrollToBottom(loading ? null : displayGroups)
 
   const handleExport = () => {
     const md = exportKnowledgeMarkdown(displayGroups)
@@ -39,7 +43,7 @@ export function KnowledgeTab() {
         </div>
       </div>
 
-      <div className="scroll-area">
+      <div className="scroll-area" ref={scrollRef}>
         {displayGroups.length === 0 && (
           <div className="empty-state">
             <div className="empty-icon">💡</div>

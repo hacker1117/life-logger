@@ -12,7 +12,9 @@ export function DayStats({ entries }: Props) {
   let total = 0
   for (const e of entries) {
     total += e.duration
-    byCategory.set(e.category, (byCategory.get(e.category) || 0) + e.duration)
+    if (e.category) {
+      byCategory.set(e.category, (byCategory.get(e.category) || 0) + e.duration)
+    }
   }
 
   return (

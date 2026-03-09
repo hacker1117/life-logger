@@ -3,16 +3,19 @@ export interface KnowledgeEntry {
   id: string
   content: string
   createdAt: number // unix ms
+  updatedAt: number
 }
 
 /** 时间记录条目 */
 export interface TimeEntry {
   id: string
   event: string
-  category: string
+  /** 分类（可选，用户主动设置） */
+  category?: string
   /** 时长（分钟） */
   duration: number
   createdAt: number // unix ms
+  updatedAt: number
 }
 
 /** Tab 类型 */

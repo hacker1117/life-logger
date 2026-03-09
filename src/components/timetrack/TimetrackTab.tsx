@@ -1,20 +1,28 @@
 import { useState } from 'react'
 import { useTimetrack } from '@/hooks/useTimetrack'
+import { useScrollToBottom } from '@/hooks/useScrollToBottom'
 import { DayPicker } from '@/components/common/DayPicker'
 import { DayStats } from './DayStats'
 import { TimeInput } from './TimeInput'
+import { CategoryPicker } from './CategoryPicker'
 import { formatTime, getTodayKey } from '@/utils/date'
 import { formatDurationCN } from '@/utils/parseTimeEntry'
 import { exportTimeCSV, downloadFile } from '@/utils/export'
 
 export function TimetrackTab() {
-  const { groups, categories, loading, addEntry, removeEntry } = useTimetrack()
+  const {
+    groups, categories, loading,
+    addEntry, updateCategory, removeEntry,
+  } = useTimetrack()
+
   const [showDayPicker, setShowDayPicker] = useState(false)
-  const [filterDate, setFilterDate] = useState<string | null>(null)
+  const [filterDate, setFilterDate]       = useState<string | null>(null)
 
   const displayGroups = filterDate
     ? groups.filter(g => g.dateKey === filterDate)
     : groups
+
+  const scrollRef = useScrollToBottom(loading ? null : displayGroups)
 
   const handleExport = () => {
     const csv = exportTimeCSV(displayGroups)
@@ -41,7 +49,7 @@ export function TimetrackTab() {
         </div>
       </div>
 
-      <div className="scroll-area">
+      <div className="scroll-area" ref={scrollRef}>
         {displayGroups.length === 0 && (
           <div className="empty-state">
             <div className="empty-icon">⏱</div>
@@ -53,19 +61,24 @@ export function TimetrackTab() {
           <div key={group.dateKey}>
             <div className="date-header">{group.label}</div>
             <DayStats entries={group.entries} />
+
             {group.entries.map(entry => (
               <div key={entry.id} className="entry-card">
                 <button
                   className="delete-btn"
                   onClick={() => removeEntry(entry.id)}
                   aria-label="删除"
-                >
-                  ×
-                </button>
+                >×</button>
+
                 <div className="entry-time">{formatTime(entry.createdAt)}</div>
                 <div className="entry-content">{entry.event}</div>
+
                 <div className="entry-meta">
-                  <span className="cat-tag">{entry.category}</span>
+                  <CategoryPicker
+                    value={entry.category}
+                    categories={categories}
+                    onChange={cat => updateCategory(entry.id, cat)}
+                  />
                   <span className="duration-tag">{formatDurationCN(entry.duration)}</span>
                 </div>
               </div>
