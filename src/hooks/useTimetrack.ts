@@ -20,11 +20,11 @@ function groupByDate(entries: TimeEntry[]): DayGroup<TimeEntry>[] {
     map.get(key)!.push(e)
   }
   return Array.from(map.entries())
-    .sort((a, b) => b[0].localeCompare(a[0]))
-    .map(([dateKey, entries]) => ({
+    .sort((a, b) => a[0].localeCompare(b[0]))          // 日期正序（旧→新）
+    .map(([dateKey, items]) => ({
       dateKey,
       label: formatDateLabel(dateKey),
-      entries,
+      entries: [...items].sort((a, b) => a.createdAt - b.createdAt), // 组内正序
     }))
 }
 
@@ -66,7 +66,7 @@ export function useTimetrack() {
       updatedAt: now,
     }
     await timetrackDB.add(entry)
-    setEntries(prev => [entry, ...prev])
+    setEntries(prev => [...prev, entry])
   }, [])
 
   /** 更新单条记录的分类（设为 undefined 即清除） */

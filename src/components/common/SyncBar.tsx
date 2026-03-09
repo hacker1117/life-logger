@@ -1,6 +1,5 @@
 /**
- * SyncBar - 顶部状态条 + 设置面板
- * 显示同步状态，支持查看/复制/粘贴 syncKey
+ * SyncBar - 顶部状态条 + 一键同步按钮 + 设置面板
  */
 import { useState } from 'react'
 import type { SyncStatus } from '@/hooks/useSync'
@@ -40,15 +39,33 @@ export function SyncBar({ syncKey, status, summary, onSync, onUpdateKey }: Props
     }
   }
 
+  const handleQuickSync = (e: React.MouseEvent) => {
+    e.stopPropagation()   // 不触发打开面板
+    onSync()
+  }
+
   if (status === 'disabled') return null
 
   return (
     <>
-      {/* 细状态条 */}
-      <div className="sync-bar" onClick={() => setShowPanel(true)}>
-        <span className={`sync-icon ${status}`}>{STATUS_ICON[status]}</span>
-        {summary && <span className="sync-summary">{summary}</span>}
-        <span className="sync-hint">云同步</span>
+      {/* 状态条：左侧点击打开设置，右侧一键同步按钮 */}
+      <div className="sync-bar">
+        {/* 左侧：状态信息，点击打开设置 */}
+        <div className="sync-bar-left" onClick={() => setShowPanel(true)}>
+          <span className={`sync-icon ${status}`}>{STATUS_ICON[status]}</span>
+          {summary && <span className="sync-summary">{summary}</span>}
+          <span className="sync-hint">云同步 ›</span>
+        </div>
+
+        {/* 右侧：一键同步按钮 */}
+        <button
+          className="sync-now-btn"
+          onClick={handleQuickSync}
+          disabled={status === 'syncing'}
+          title="立即同步"
+        >
+          {status === 'syncing' ? '同步中…' : '↻ 同步'}
+        </button>
       </div>
 
       {/* 设置面板 */}
@@ -92,7 +109,9 @@ export function SyncBar({ syncKey, status, summary, onSync, onUpdateKey }: Props
             </div>
 
             <div className="modal-actions">
-              <button className="btn btn-ghost" onClick={onSync}>立即同步</button>
+              <button className="btn btn-ghost" onClick={() => { onSync(); setShowPanel(false) }}>
+                立即同步
+              </button>
               <button className="btn btn-ghost" onClick={() => setShowPanel(false)}>关闭</button>
             </div>
           </div>

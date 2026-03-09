@@ -15,11 +15,11 @@ function groupByDate(entries: KnowledgeEntry[]): DayGroup<KnowledgeEntry>[] {
     map.get(key)!.push(e)
   }
   return Array.from(map.entries())
-    .sort((a, b) => b[0].localeCompare(a[0]))
-    .map(([dateKey, entries]) => ({
+    .sort((a, b) => a[0].localeCompare(b[0]))          // 日期正序（旧→新）
+    .map(([dateKey, items]) => ({
       dateKey,
       label: formatDateLabel(dateKey),
-      entries,
+      entries: [...items].sort((a, b) => a.createdAt - b.createdAt), // 组内正序
     }))
 }
 
@@ -44,7 +44,7 @@ export function useKnowledge() {
       updatedAt: now,
     }
     await knowledgeDB.add(entry)
-    setEntries(prev => [entry, ...prev])
+    setEntries(prev => [...prev, entry])
   }, [])
 
   const removeEntry = useCallback(async (id: string) => {

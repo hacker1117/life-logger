@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useTimetrack } from '@/hooks/useTimetrack'
+import { useScrollToBottom } from '@/hooks/useScrollToBottom'
 import { DayPicker } from '@/components/common/DayPicker'
 import { DayStats } from './DayStats'
 import { TimeInput } from './TimeInput'
@@ -20,6 +21,8 @@ export function TimetrackTab() {
   const displayGroups = filterDate
     ? groups.filter(g => g.dateKey === filterDate)
     : groups
+
+  const scrollRef = useScrollToBottom(loading ? null : displayGroups)
 
   const handleExport = () => {
     const csv = exportTimeCSV(displayGroups)
@@ -46,7 +49,7 @@ export function TimetrackTab() {
         </div>
       </div>
 
-      <div className="scroll-area">
+      <div className="scroll-area" ref={scrollRef}>
         {displayGroups.length === 0 && (
           <div className="empty-state">
             <div className="empty-icon">⏱</div>
