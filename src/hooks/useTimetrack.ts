@@ -69,18 +69,28 @@ export function useTimetrack() {
     setEntries(prev => [...prev, entry])
   }, [])
 
+  /** 更新单条记录内容 */
+  const updateEntry = useCallback(async (
+    id: string,
+    patch: Partial<Pick<TimeEntry, 'event' | 'duration' | 'category'>>,
+  ) => {
+    setEntries(prev => prev.map(e => {
+      if (e.id !== id) return e
+      const next: TimeEntry = {
+        ...e,
+        ...patch,
+        event: patch.event !== undefined ? patch.event.trim() : e.event,
+        updatedAt: Date.now(),
+      }
+      timetrackDB.put(next) // fire-and-forget
+      return next
+    }))
+  }, [])
+
   /** 更新单条记录的分类（设为 undefined 即清除） */
   const updateCategory = useCallback(async (id: string, category: string | undefined) => {
-    setEntries(prev => {
-      const updated = prev.map(e => {
-        if (e.id !== id) return e
-        const next: TimeEntry = { ...e, category, updatedAt: Date.now() }
-        timetrackDB.put(next)   // fire-and-forget
-        return next
-      })
-      return updated
-    })
-  }, [])
+    updateEntry(id, { category })
+  }, [updateEntry])
 
   /** 删除记录 */
   const removeEntry = useCallback(async (id: string) => {
@@ -112,7 +122,7 @@ export function useTimetrack() {
 
   return {
     entries, groups, categories, loading,
-    addEntry, updateCategory, removeEntry,
+    addEntry, updateEntry, updateCategory, removeEntry,
     addCategory, removeCategory, reload,
   }
 }
